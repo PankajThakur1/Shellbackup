@@ -1,0 +1,34 @@
+#!/bin/bash
+# This is a backup script!
+
+BKPDIR="/testing"
+LOG="/var/log/testing"
+
+log() {
+        local m="$1"
+        local dt="$(date '+%Y-%m-%d %H:%M:%S')"
+        local pid="$$"
+        printf "%s\n" "${dt} ${pid} ${m}"
+}
+
+if [ $(id -u) != 0 ];then
+   log "ERROR:Currently you have logged in as "$(whoami)".you have need to login as root to execute this script !"
+   exit 1
+fi
+
+bkp() {
+        local dt="$(date '+%Y-%m-%d %H:%M:%S')"
+        if [ -d $BKPDIR ];then
+        log "INFO:$BKPDIR already exists. Going to start the backup ..." >> "LOG-$dt.log"
+        /bin/tar -cvjf $BKPDIR/bkp-$dt.tar.bz2 /root/pankaj 2> /dev/null
+        log "INFO: Backup compleated. " >> "LOG-$dt.log"
+else
+        log "ERROR:BKPDIR is not available. Going to create it first." >> "$LOG-$dt.log"
+        /bin/mkdir $BKPDIR
+        /bin/tar -cvjf $BKPDIR/bkp.tar.bz2 /root/pankaj
+        log "INFO: Backup compleated." >> "$LOG-dt.log"
+fi
+
+}
+
+bkp
